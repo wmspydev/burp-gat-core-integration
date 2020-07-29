@@ -15,6 +15,7 @@
   2020/07/17      1.0          Init            Julio C. Almeida   N/A
 *******************************************************************************/
 """
+
 from burp import IBurpExtender
 from burp import IScannerCheck
 from burp import IExtensionStateListener
