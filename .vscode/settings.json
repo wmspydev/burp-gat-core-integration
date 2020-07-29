@@ -1,0 +1,38 @@
+{
+    "python.pythonPath": "C:\\Users\\infoo\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
+    "logViewer.logLevel": "debug",
+    "logViewer.watch": [
+        {
+            "title": "QualysDev",
+            "pattern": "D:\/GAT Digital\/Works\/QualysConnector\/src\/logging\/logging.log"
+        }
+    ],
+    "yaml.schemas": {
+        "file:///c%3A/Users/hp/.vscode/extensions/atlassian.atlascode-2.2.1/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml"
+    },
+    "atlascode.jira.jqlList": [
+        {
+            "id": "5acb8f16-2ca3-47b2-82f9-cd7fcb0f371b",
+            "enabled": true,
+            "name": "Tasks GAT-IBLISS",
+            "query": "assignee = currentUser() ORDER BY lastViewed DESC ",
+            "siteId": "adfb84f1-f3bb-4df8-96d5-e24ce7b9a6d8",
+            "monitor": true
+        }
+    ],
+    "atlascode.outputLevel": "info",
+    "atlascode.configurationTarget": "workspace",
+    "atlascode.bitbucket.issues.createJiraEnabled": true,
+    // Define o tema do VSCode
+    "workbench.colorTheme": "Dracula",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.flake8Enabled": true,
+    "atlascode.bitbucket.pipelines.hideFiltered": false,
+    "[python]": {
+        "editor.rulers": [
+            80,
+            120
+        ]
+    }
+}
