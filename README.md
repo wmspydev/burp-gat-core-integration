@@ -1,25 +1,39 @@
 **Burp Extension, integration GAT Digital**
 
-Extensão para o Burp Professional desenvolvida em ambiente Python.
+Extensão para o Burp desenvolvida em ambiente Python.
 
 *Integração via interface do Burp para efetuar o envio de todos os apontamentos com base na seleção de Target --> Hosts únicos ou múltiplos*
 
 ---
 
-## Edit a file
+## Instalação
 
-You’ll start by editing this README file to learn how to edit a file in Bitbucket.
+* Requisitos:
+    1. ***BURP PROFESSIONAL***
 
-1. Click **Source** on the left side.
-2. Click the README.md link from the list of files.
-3. Click the **Edit** button.
-4. Delete the following text: *Delete this line to make a change to the README from Bitbucket.*
-5. After making your change, click **Commit** and then **Commit** again in the dialog. The commit page will open and you’ll see the change you just made.
-6. Go back to the **Source** page.
+Clicar no Tab **Extender**
+1. Ir no Tab **Options** configurar em "Python Evironment"
+    * Location of Jython standalone JAR file:
+    ```~\burp-extension\jython\jython-standalone-2.7.2.jar```
+    * Folder for loading modules(optional):
+    ```~\burp-extension\src\modules```
 
+    ![Alt text](images/img-1.png?raw=true "Environment Configuração")
+
+2. Ir no Tab **Extensions**
+    * Clicando em "Add", seguir o wizard em "Extension Details" selecionar "Type" Python e selecionar o arquivo main.py em "*~\burp-extension\src\main.py*"
+    * Folder for loading modules (optional)
+    
+    ![Alt text](images/img-2.png?raw=true "Extension Configuração")
+
+Clicar no Tab **GAT Settings**
+* Configurar API Url e API Token, clicar em Salvar/Conectar.
+
+![Alt text](images/img-4.png?raw=true "API Configuração")
+![Alt text](images/img-5.png?raw=true "API Conectado")
 ---
 
-## Create a file
+## Utilizando a extensão
 
 Next, you’ll add a new file to this repository.
 
@@ -31,6 +45,7 @@ Next, you’ll add a new file to this repository.
 
 Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
 
+![Alt text](images/img-3.png?raw=true "Enviando Issues para GAT")
 ---
 
 ## Clone a repository
