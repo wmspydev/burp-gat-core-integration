@@ -15,15 +15,17 @@ Clicar no Tab **Extender**
 1. Ir no Tab **Options** configurar em "Python Evironment"
     * Location of Jython standalone JAR file:
     ```~\burp-extension\jython\jython-standalone-2.7.2.jar```
+
     * Folder for loading modules(optional):
     ```~\burp-extension\src\modules```
+
 
     ![Alt text](images/img-1.png?raw=true "Environment Configuração")
 
 2. Ir no Tab **Extensions**
     * Clicando em "Add", seguir o wizard em "Extension Details" selecionar "Type" Python e selecionar o arquivo main.py em "*~\burp-extension\src\main.py*"
     * Folder for loading modules (optional)
-    
+
     ![Alt text](images/img-2.png?raw=true "Extension Configuração")
 
 Clicar no Tab **GAT Settings**
