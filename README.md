@@ -11,9 +11,11 @@ Extensão para o Burp desenvolvida em ambiente Python.
 * Requisitos:
     1. ***BURP PROFESSIONAL***
 
+
 Clicar no Tab **Extender**
 1. Ir no Tab **Options** configurar em "Python Evironment"
     * Location of Jython standalone JAR file, indicar em: ~\burp-extension\jython\jython-standalone-2.7.2.jar
+
     * Folder for loading modules(optional), indicar em: ~\burp-extension\src\modules
 
 ![Alt text](images/img-1.png?raw=true "Environment Configuração")
