@@ -9,9 +9,15 @@ Extensão para o Burp desenvolvida em ambiente Python.
 ## Instalação
 
 * Requisitos:
-    1. ***BURP PROFESSIONAL***
+    1. ***BURP PROFESSIONAL/INTERPRISE***
     2. ***Jython JAR***
     3. ***Aditional Modules Python***
+
+### Primeiro passo - **Clonar** repositório para o Desktop/Server onde está o Burp Professional/Interprise instalado.
+
+```
+git clone https://bitbucket.org/IBLISS-GAT-DEV/gat-burp-extension.git
+```
 
 ### Clicar no Tab **Extender**
 1. Ir no Tab **Options** configurar em "Python Evironment"
@@ -49,4 +55,12 @@ Após o envio no Tab "Extender", subTab "Output" será confirmado o processament
 
 ![Alt text](images/img-8.png?raw=true "Enviando Issues para GAT")
 
+## Conferindo no GAT
+Ao acessar "GAT" já estará disponível as notificações de todos os processos enviados via Extensão do BURP
+
+![Alt text](images/img-9.png?raw=true "Lista Uploads")
+
+Acessando o menu laterial "Integração" é possivel verificar maiores informações sobre o processamento dos arquivos com os Apontamentos enviados para o "GAT".
+
+![Alt text](images/img-10.png?raw=true "Maiores Infos Processo")
 ---
