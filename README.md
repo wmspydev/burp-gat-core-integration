@@ -24,7 +24,6 @@ Extensão para o Burp desenvolvida em ambiente Python.
 2. Ir no Tab **Extensions**
     * Clicando em "Add", seguir o wizard em "Extension Details"
     selecionar "Type" Python e selecionar o arquivo main.py em: "~\burp-extension\src\main.py"
-    * Folder for loading modules (optional)
 
 ![Alt text](images/img-2.png?raw=true "Extension Configuração")
 
