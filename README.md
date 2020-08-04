@@ -13,21 +13,22 @@ Extensão para o Burp desenvolvida em ambiente Python.
     2. ***Jython JAR***
     3. ***Aditional Modules Python***
 
-** Clicar no Tab **Extender**
+### Clicar no Tab **Extender**
 1. Ir no Tab **Options** configurar em "Python Evironment"
-    * Location of Jython standalone JAR file, configurar para a pasta/arquivo: ~\burp-extension\jython\jython-standalone-2.7.2.jar
-    * Folder for loading modules(optional), configurar para a pasta: ~\burp-extension\src\modules
+    * Location of Jython standalone JAR file, configurar para a pasta/arquivo: "~\burp-extension\jython\jython-standalone-2.7.2.jar"
+
+    * Folder for loading modules(optional), configurar para a pasta: "~\burp-extension\src\modules"
 
 ![Alt text](images/img-1.png?raw=true "Environment Configuração")
 
 2. Ir no Tab **Extensions**
     * Clicando em "Add", seguir o wizard em "Extension Details"
-    selecionar "Type" Python e selecionar o arquivo main.py em: "*~\burp-extension\src\main.py*"
+    selecionar "Type" Python e selecionar o arquivo main.py em: "~\burp-extension\src\main.py"
     * Folder for loading modules (optional)
 
 ![Alt text](images/img-2.png?raw=true "Extension Configuração")
 
-** Clicar no Tab **GAT Settings**
+### Clicar no Tab **GAT Settings**
 * Configurar API Url e API Token, clicar em Salvar/Conectar.
 
 ![Alt text](images/img-4.png?raw=true "API Configuração")
@@ -35,7 +36,6 @@ Extensão para o Burp desenvolvida em ambiente Python.
 ---
 
 ## Utilizando a extensão
-
 No Tab "Target" ao clicar com botão direito do mouse, terá disponível a opção no menu suspenso "Enviar Issues para GAT"
 
 ![Alt text](images/img-6.png?raw=true "Menu Enviar")
