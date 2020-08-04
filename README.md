@@ -10,13 +10,13 @@ Extensão para o Burp desenvolvida em ambiente Python.
 
 * Requisitos:
     1. ***BURP PROFESSIONAL***
+    2. ***Jython JAR***
+    3. ***Aditional Modules Python***
 
-
-Clicar no Tab **Extender**
+** Clicar no Tab **Extender**
 1. Ir no Tab **Options** configurar em "Python Evironment"
-    * Location of Jython standalone JAR file, indicar em: ~\burp-extension\jython\jython-standalone-2.7.2.jar
-
-    * Folder for loading modules(optional), indicar em: ~\burp-extension\src\modules
+    * Location of Jython standalone JAR file, configurar para a pasta/arquivo: ~\burp-extension\jython\jython-standalone-2.7.2.jar
+    * Folder for loading modules(optional), configurar para a pasta: ~\burp-extension\src\modules
 
 ![Alt text](images/img-1.png?raw=true "Environment Configuração")
 
@@ -27,7 +27,7 @@ Clicar no Tab **Extender**
 
 ![Alt text](images/img-2.png?raw=true "Extension Configuração")
 
-Clicar no Tab **GAT Settings**
+** Clicar no Tab **GAT Settings**
 * Configurar API Url e API Token, clicar em Salvar/Conectar.
 
 ![Alt text](images/img-4.png?raw=true "API Configuração")
@@ -36,26 +36,18 @@ Clicar no Tab **GAT Settings**
 
 ## Utilizando a extensão
 
-Next, you’ll add a new file to this repository.
+No Tab "Target" ao clicar com botão direito do mouse, terá disponível a opção no menu suspenso "Enviar Issues para GAT"
 
-1. Click the **New file** button at the top of the **Source** page.
-2. Give the file a filename of **contributors.txt**.
-3. Enter your name in the empty file space.
-4. Click **Commit** and then **Commit** again in the dialog.
-5. Go back to the **Source** page.
+![Alt text](images/img-6.png?raw=true "Menu Enviar")
 
-Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
+Pode ser utilizado selecionando um único hosts ou multiplos hosts, a cada envio será confirmado o número de hosts e quantidade de Issues será enviada.
+
+![Alt text](images/img-7.png?raw=true "Menu Enviar")
 
 ![Alt text](images/img-3.png?raw=true "Enviando Issues para GAT")
+
+Após o envio no Tab "Extender", subTab "Output" será confirmado o processamento e envio das Issues.
+
+![Alt text](images/img-8.png?raw=true "Enviando Issues para GAT")
+
 ---
-
-## Clone a repository
-
-Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to work on your files locally. If you don't yet have SourceTree, [download and install first](https://www.sourcetreeapp.com/). If you prefer to clone from the command line, see [Clone a repository](https://confluence.atlassian.com/x/4whODQ).
-
-1. You’ll see the clone button under the **Source** heading. Click that button.
-2. Now click **Check out in SourceTree**. You may need to create a SourceTree account or log in.
-3. When you see the **Clone New** dialog in SourceTree, update the destination path and name if you’d like to and then click **Clone**.
-4. Open the directory you just created to see your repository’s files.
-
-Now that you're more familiar with your Bitbucket repository, go ahead and add a new file locally. You can [push your change back to Bitbucket with SourceTree](https://confluence.atlassian.com/x/iqyBMg), or you can [add, commit,](https://confluence.atlassian.com/x/8QhODQ) and [push from the command line](https://confluence.atlassian.com/x/NQ0zDQ).
