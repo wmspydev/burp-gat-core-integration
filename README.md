@@ -1,8 +1,8 @@
-**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
+**Burp Extension, integration GAT Digital**
 
-When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.
+Extensão para o Burp Professional desenvolvida em ambiente Python.
 
-*We recommend that you open this README in another tab as you perform the tasks below. You can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.*
+*Integração via interface do Burp para efetuar o envio de todos os apontamentos com base na seleção de Target --> Hosts únicos ou múltiplos*
 
 ---
 

@@ -73,16 +73,20 @@ import csv
 import json
 import time
 import uuid
-import requests
-import threading
+import urllib3
+import certifi
+import logging
+# import requests
 import traceback
 import java.util.List
 
 from urlparse import urlparse
+from threading import Thread
+
 
 # handles ASCII encoding errors.
-# reload(sys)
-# sys.setdefaultencoding('utf-8')
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 
 class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
@@ -92,7 +96,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
     def __init__(self):
         self.msgrel = False
-        print("[+] Carregando Integração GAT Digital ...")
+        print("[+] Carregando GAT Digital Extension ...")
 
     def registerExtenderCallbacks(self, callbacks):
 
@@ -101,7 +105,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self._helpers = self._callbacks.getHelpers()
 
         # set our extension name
-        self._callbacks.setExtensionName("GAT Digital Integração")
+        self._callbacks.setExtensionName("GAT Digital Integration")
         self._callbacks.registerContextMenuFactory(self)
         self._callbacks.registerScannerListener(self)
 
@@ -113,16 +117,20 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         print("[+] GAT Digital Extension carregado!")
 
     def actionPerformed(self, event):
+        print("*" * 60)
+
+        self.fileId = []
         requestResponses = self.invocation.getSelectedMessages()
         chosts, ihosts = self.countHostIssues(requestResponses)
         dialogConfirm = JOptionPane.showOptionDialog(
             None,
-            "{} host(s) com {} Issues,\n Continuar?".format(
+            "Encontrado {} host(s) com {} Issues,\n Continuar?".format(
                 chosts, ihosts
             ),
-            "Confirma processamento?",
+            "Confirmar",
             JOptionPane.DEFAULT_OPTION,
-            JOptionPane.QUESTION_MESSAGE, None, ["Não", "Sim"], "Não")
+            JOptionPane.QUESTION_MESSAGE, None, ["Cancelar", "Sim"], "Sim"
+        )
 
         if not dialogConfirm:
             JOptionPane.showMessageDialog(
@@ -135,18 +143,14 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         for reqResp in requestResponses:
             url = reqResp.getHttpService()
             requestIssues = self._callbacks.getScanIssues(str(url))
-            self.issues_results = requestIssues
-            self.fileId = []
+            countIssues = 0
             listIssues = []
 
             if requestIssues:
-
                 if len(requestIssues) > 0:
-
                     for i in requestIssues:
                         scanissue = i
                         sep = "<br><hr><br>"
-
                         issue = {}
                         issue['Tool_Type'] = "BURP"
                         IssueType = scanissue.getIssueType()
@@ -203,19 +207,32 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                         issue['sTag'] = sTag
 
                         issue['Description'] = "{}{}{}".format(
-                            IssueDescBk, sep, IssueDesc)
+                            IssueDescBk, sep, IssueDesc
+                        )
 
                         issue['Recommendation'] = "{}{}{}".format(
-                            IssueRecomBk, sep, IssueRecom)
+                            IssueRecomBk, sep, IssueRecom
+                        )
 
                         listIssues.append(issue)
 
+                        # incrementar
+                        countIssues += 1
+
+                        # limitar
+                        if countIssues == 15:
+                            # reiniciar
+                            countIssues = 0
+
+                            # gerar
+                            self.generateReportGat(listIssues)
+                            del listIssues[:]
+
                     self.generateReportGat(listIssues)
 
-            # self.sendIssues()
-            self.launchThread(self.sendIssues)
-
-        print("[+] Finalizado processamento do(s) host(s)")
+        # iniciar threads
+        print("[+] Threads Iniciadas ...")
+        self.launchThread(self.sendIssues)
 
     def createMenuItems(self, invocation):
         self.invocation = invocation
@@ -291,7 +308,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
             if vapi.status_code == 200:
                 data = json.loads(vapi.text)
-                print("[ ] {}, {} conectado".format(
+                print("[ ] Conectado: {}, {}".format(
                     data['name'], data['email'])
                 )
                 if self.msgrel:
@@ -316,8 +333,9 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         return self.gui_elements
 
     def generateReportGat(self, rows):
-
+        quote = '"'
         Id = uuid.uuid4().hex
+        self.fileId.append(Id)
         path = os.getcwd()
         folder = "\\exports\\"
         file_name = "{}{}{}.csv".format(path, folder, Id)
@@ -329,47 +347,40 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                 'Description', 'Recomenation_Title', 'Recommendation'
             ]
             writer = csv.DictWriter(
-                csv_file, fieldnames=fields, lineterminator='\n'
+                csv_file,
+                fieldnames=fields,
+                quotechar=quote,
+                quoting=csv.QUOTE_NONNUMERIC,
+                lineterminator='\n'
             )
             writer.writeheader()
             # for row in rows:
             writer.writerows(rows)
         csv_file.close()
 
-        self.fileId.append(Id)
-
-    def generateReportXML(self, format):
-        if format != 'XML':
-            format = 'HTML'
-
-        path = os.getcwd()
-
-        file_name = '{}\exports\gat_report_t.xml'.format(path)
-        self._callbacks.generateScanReport(
-            format, self.issues_results, File(file_name)
-        )
-
-        time.sleep(5)
-
-        return
+        return Id
 
     def sendIssues(self):
         for Id in self.fileId:
             print("[+] Processando ID: {}".format(Id))
-
             path = os.getcwd()
             folder = "\\exports\\"
             file_name = "{}{}{}.csv".format(path, folder, Id)
-
-            self.apiGAT.SendCSV(file_name)
+            self.launchThread(self.apiGAT.SendCSV, arguments=file_name)
 
     def launchThread(self, targetFunction, arguments=None):
         """Launches a thread against a specified target function"""
         if arguments:
-            t = threading.Thread(target=targetFunction, args=arguments)
+
+            t = Thread(
+                name='args', target=targetFunction, args=(arguments, )
+            )
         else:
-            t = threading.Thread(target=targetFunction)
-        t.daemon = True
+            t = Thread(
+                name='no-args', target=targetFunction
+            )
+
+        t.setDaemon(True)
         t.start()
 
     def countHostIssues(self, requestResponses):
@@ -383,6 +394,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                     count += 1
                     for issue in requestIssues:
                         icount += 1
+
         return count, icount
 
 
@@ -397,22 +409,43 @@ class GAT():
         """
         Função generica para acesso API GAT
         """
+
+        s = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
+                                ca_certs=certifi.where()
+                                )
+
         protocol = "http" if api == "localhost" else "https"
         gatPoint = "{}://{}{}".format(protocol, api, resource)
-        try:
-            with requests.Session() as s:
-                s.headers = {
-                    'Content-Type': "application/json",
-                    'cache-control': "no-cache",
-                    'Authorization': 'Bearer %s' % token
-                }
-                r = s.request(
-                    method, gatPoint, json=payload, headers=header, files=file)
-        except Exception:
-            response = {}
-            response["status_code"] = 500
-            r = DotDict(response)
-            return r
+
+        # try:
+        # with requests.Session() as s:
+        if file:
+            header = {
+                'Authorization': 'Bearer %s' % token,
+                'Accept': 'application/json',
+                'cache-control': 'no-cache'
+            }
+        else:
+            header = {
+                'Content-Type': "application/json",
+                'Authorization': 'Bearer %s' % token
+            }
+
+        r = s.request(
+            method, gatPoint, fields=file, headers=header
+        )
+
+        # r = s.request(
+        #     method, gatPoint, json=payload, files=file, headers=header
+        # )
+
+        # except Exception as e:
+        response = {}
+        response["status_code"] = r.status
+        response["text"] = r.data.decode('utf-8')
+        r = DotDict(response)
+
+        # return r
 
         return r
 
@@ -430,30 +463,48 @@ class GAT():
         """
         Enviar CSV para o GAT efetuar o parser das Issues
         """
-        with open(filename, 'rb') as csv:
+        try:
             name_csv = os.path.basename(filename)
-            file = {'file': (name_csv, csv, "text/csv", {'Expires': "0"})}
             resource = "/app/vulnerability/upload/api/Burp"
+
+            file = {'file': (
+                name_csv, open(filename, 'rb').read(), 'text/csv'
+            )}
+
             response = self.RequestAPI(self.gahost, 'POST', resource,
                                        self.authorization, file=file)
 
-        csv.close()
+        except Exception as e:
+            print("[-] Falha arquivo/envio de Issues ID:{} - Error: {}".format(
+                name_csv, e)
+            )
 
         if response.status_code == 200:
-            print("[+] Success - {}".format(response.text))
-            os.remove(filename)
+            self.removeCSV(filename)
+            print("[+] Success ID: {}".format(name_csv.replace(".csv", "")))
+
         else:
-            print("[-] Falhou o envio das Issues ID: {} - code:{}".format(
+            print("[-] Falhou o envio do ID: {} - code :{}".format(
                 name_csv.replace(".csv", ""), response.status_code))
-            # show message alert error SEND CSV to GAT
-            # JOptionPane.showMessageDialog(
-            #     None,
-            #     "Falhou o envio das Issues",
-            #     "Error",
-            #     JOptionPane.ERROR_MESSAGE)
-            os.remove(filename)
+
+            if response.text:
+                print("Error: {}".format(response.text))
+
+            JOptionPane.showMessageDialog(
+                None,
+                "Falhou o envio das Issues",
+                "Error",
+                JOptionPane.ERROR_MESSAGE)
+            self.removeCSV(filename)
 
         return response
+
+    def removeCSV(self, path):
+        """ param <path> could either be relative or absolute. """
+        if os.path.isfile(path) or os.path.islink(path):
+            os.remove(path)  # remove the file
+        else:
+            raise ValueError("file {} is not a file".format(path))
 
 
 class DotDict(dict):
