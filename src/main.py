@@ -17,53 +17,34 @@
 """
 
 from burp import IBurpExtender
-from burp import IScannerCheck
-from burp import IExtensionStateListener
 from burp import IBurpExtenderCallbacks
-from burp import IMessageEditor
 from burp import IContextMenuFactory
-from burp import IContextMenuInvocation
-from burp import IHttpRequestResponse
-from burp import IExtensionHelpers
-from burp import IHttpRequestResponseWithMarkers
-from burp import ITab
-from burp import IMessageEditorController
-from burp import ITextEditor
-from burp import IHttpService
-from burp import IScanIssue
 from burp import IScannerListener
-
-from array import array
-
-from javax import swing
+from burp import ITab
+from burp import IScanIssue
+from burp import IHttpService
 
 from java.awt import BorderLayout
 from java.awt import GridLayout
-from java.awt import Dimension
-from java.awt import Toolkit
 from java.awt import Color
 from java.awt import Font
 
 from java.awt.event import ActionListener
-from java.awt.event import ActionEvent
-from java.awt.event import KeyEvent
 
-from java.awt.datatransfer import StringSelection
 
 from javax.swing import (JMenuItem)
 from javax.swing import JTextField
 from javax.swing import JLabel
-from javax.swing import JFrame
 from javax.swing import JPanel
 from javax.swing import JButton
-from javax.swing import JCheckBox
 from javax.swing import JOptionPane
 
 from javax.swing.border import EmptyBorder
 
 from java.io import File
+from java.net import URL
+from java.net import URI
 
-from java.util import List
 from java.util import ArrayList
 
 import os
@@ -73,14 +54,8 @@ import csv
 import json
 import time
 import uuid
-import urllib3
-import certifi
-import logging
-# import requests
 import traceback
-import java.util.List
 
-from urlparse import urlparse
 from threading import Thread
 
 
@@ -90,34 +65,37 @@ sys.setdefaultencoding('utf-8')
 
 
 class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
-                   ActionListener, IMessageEditorController, ITab, ITextEditor,
-                   IHttpService, IScanIssue, IHttpRequestResponseWithMarkers,
+                   ActionListener, ITab, IHttpService, IScanIssue,
                    IBurpExtenderCallbacks):
 
     def __init__(self):
-        self.msgrel = False
         print("[+] Carregando GAT Digital Extension ...")
 
     def registerExtenderCallbacks(self, callbacks):
-
-        # keep a reference to our callbacks object (Burp Extensibility Feature)
+        """
+        registrar classes
+        """
         self._callbacks = callbacks
         self._helpers = self._callbacks.getHelpers()
 
-        # set our extension name
         self._callbacks.setExtensionName("GAT Digital Integration")
-        self._callbacks.registerContextMenuFactory(self)
-        self._callbacks.registerScannerListener(self)
+
+        self.reload_config()
 
         self.gui_elements = self.build_gui()
         callbacks.customizeUiComponent(self.gui_elements)
         callbacks.addSuiteTab(self)
-        self.reload_config()
+        self._callbacks.registerContextMenuFactory(self)
+        self._callbacks.registerScannerListener(self)
 
         print("[+] GAT Digital Extension carregado!")
 
-    def actionPerformed(self, event):
-        print("*" * 60)
+    def newScanIssue(self, issue):
+        print("[+] Issue encontrada (%s)" % issue.getIssueName())
+        return
+
+    def actionTarget(self, event):
+        print("*" * 80)
 
         self.fileId = []
         requestResponses = self.invocation.getSelectedMessages()
@@ -143,96 +121,108 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         for reqResp in requestResponses:
             url = reqResp.getHttpService()
             requestIssues = self._callbacks.getScanIssues(str(url))
-            countIssues = 0
             listIssues = []
 
             if requestIssues:
                 if len(requestIssues) > 0:
                     for i in requestIssues:
                         scanissue = i
-                        sep = "<br><hr><br>"
-                        issue = {}
-                        issue['Tool_Type'] = "BURP"
-                        IssueType = scanissue.getIssueType()
-                        IssueName = scanissue.getIssueName()
-                        IssueCrit = scanissue.getSeverity()
-                        IssueConf = scanissue.getConfidence()
-                        protocol = scanissue.getHttpService().getProtocol()
-                        host = scanissue.getHttpService().getHost()
-                        IssuePath = i.getUrl().getPath()
-                        IssueDescBk = scanissue.getIssueBackground()
-                        IssueDesc = scanissue.getIssueDetail()
-                        IssueRecomBk = scanissue.getRemediationBackground()
-                        IssueRecom = scanissue.getRemediationDetail()
+                        if scanissue.getIssueName() not in ['']:
+                            sep = "<br><hr><br>"
+                            issue = {}
+                            issue['Tool_Type'] = "BURP"
+                            IssueType = scanissue.getIssueType()
+                            IssueName = scanissue.getIssueName()
+                            IssueCrit = scanissue.getSeverity()
+                            IssueConf = scanissue.getConfidence()
+                            protocol = scanissue.getHttpService().getProtocol()
+                            host = scanissue.getHttpService().getHost()
+                            IssuePath = i.getUrl().getPath()
+                            IssueDesc = scanissue.getIssueDetail()
+                            IssueDescBk = scanissue.getIssueBackground()
+                            IssueRecom = scanissue.getRemediationDetail()
+                            IssueRecomBk = scanissue.getRemediationBackground()
 
-                        if IssueType:
-                            issue['IssueType'] = scanissue.getIssueType()
-                        else:
-                            issue['IssueType'] = 0000
+                            if IssueType:
+                                issue['IssueType'] = scanissue.getIssueType()
+                            else:
+                                issue['IssueType'] = 0000
 
-                        if IssueName:
-                            issue['DetailsFinding_Title'] = IssueName
-                            issue['Recomenation_Title'] = IssueName
-                        else:
-                            issue['DetailsFinding_Title'] = " "
-                            issue['Recomenation_Title'] = " "
+                            if IssueName:
+                                issue['DetailsFinding_Title'] = IssueName
+                                issue['Recomenation_Title'] = IssueName
+                            else:
+                                issue['DetailsFinding_Title'] = " "
+                                issue['Recomenation_Title'] = " "
 
-                        if "False positive" in IssueCrit:
-                            sTag = "False positive"
-                            IssueCrit = ""
-                        elif "Information" in IssueCrit:
-                            IssueCrit = "Informative"
-                            sTag = ""
-                        else:
-                            sTag = ""
+                            if "False positive" in IssueCrit:
+                                sTag = "False positive"
+                                IssueCrit = ""
+                            elif "Information" in IssueCrit:
+                                IssueCrit = "Informative"
+                                sTag = ""
+                            else:
+                                sTag = ""
 
-                        if IssueCrit:
-                            issue['Severity'] = IssueCrit
-                        else:
-                            issue['Severity'] = " "
+                            if IssueCrit:
+                                issue['Severity'] = IssueCrit
+                            else:
+                                issue['Severity'] = " "
 
-                        issue['Web_Application_URI'] = "{}://{}".format(
-                            protocol, host)
+                            issue['Web_Application_URI'] = "{}://{}".format(
+                                protocol, host)
 
-                        if IssuePath:
-                            issue['Web_Application_Path'] = IssuePath
-                        else:
-                            issue['Web_Application_Path'] = "/"
+                            if IssuePath:
+                                issue['Web_Application_Path'] = IssuePath
+                            else:
+                                issue['Web_Application_Path'] = "/"
 
-                        if IssueConf:
-                            issue['fTag'] = IssueConf
-                        else:
-                            issue['fTag'] = " "
+                            if IssueConf:
+                                issue['fTag'] = IssueConf
+                            else:
+                                issue['fTag'] = " "
 
-                        issue['sTag'] = sTag
+                            issue['sTag'] = sTag
 
-                        issue['Description'] = "{}{}{}".format(
-                            IssueDescBk, sep, IssueDesc
-                        )
+                            if IssueDescBk:
+                                issue['Description'] = IssueDescBk.replace(
+                                    "\n", ""
+                                )
 
-                        issue['Recommendation'] = "{}{}{}".format(
-                            IssueRecomBk, sep, IssueRecom
-                        )
+                            if IssueDesc:
+                                issue['Description'] += "{}{}".format(
+                                    sep,
+                                    IssueDesc.replace(
+                                        "\n", ""
+                                    )
+                                )
 
-                        listIssues.append(issue)
+                            if IssueRecomBk:
+                                issue['Recommendation'] = IssueRecomBk.replace(
+                                    "\n", ""
+                                )
 
-                        # incrementar
-                        countIssues += 1
+                            if IssueRecom:
+                                issue['Recommendation'] += "{}{}".format(
+                                    sep,
+                                    IssueRecom.replace(
+                                        "\n", ""
+                                    )
+                                )
 
-                        # limitar
-                        if countIssues == 15:
-                            # reiniciar
-                            countIssues = 0
-
-                            # gerar
-                            self.generateReportGat(listIssues)
-                            del listIssues[:]
+                            listIssues.append(issue)
 
                     self.generateReportGat(listIssues)
 
         # iniciar threads
-        print("[+] Threads Iniciadas ...")
+        print("[+] Thread(s) Iniciada(s)...")
+        print("[+] Enviando {} host(s), total de {} Issue(s),\n".format(
+            chosts, ihosts
+        ))
         self.launchThread(self.sendIssues)
+
+    def actionScanner(self):
+        pass
 
     def createMenuItems(self, invocation):
         self.invocation = invocation
@@ -240,16 +230,18 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         if context in [invocation.CONTEXT_TARGET_SITE_MAP_TREE]:
             sendToGAT = JMenuItem("Enviar Issues para GAT")
 
-            # sendToGAT.setForeground(Color.WHITE)
+            # sendToGAT.setForeground(Color.ORANGE)
             FONT = sendToGAT.getFont()
             sendToGAT.setFont(Font(
                 FONT.getFontName(), Font.BOLD, FONT.getSize())
             )
-            sendToGAT.addActionListener(self.actionPerformed)
+
+            sendToGAT.addActionListener(self.actionTarget)
 
             menuItems = ArrayList()
             menuItems.add(sendToGAT)
             return menuItems
+
         else:
             # TODO: add support for other tools
             pass
@@ -259,7 +251,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         panel = JPanel()
         panel.setBorder(EmptyBorder(10, 10, 10, 10))
 
-        save_btn = JButton('Salvar/Conectar', actionPerformed=self.save_config)
+        save_btn = JButton('Salvar', actionPerformed=self.save_config)
 
         self.host_api = JTextField(100)
         self.api_token = JTextField(100)
@@ -288,13 +280,11 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         save_setting = self._callbacks.saveExtensionSetting
         save_setting('host_api', self.host_api.getText())
         save_setting('api_token', self.api_token.getText())
-        self.msgrel = True
         self.reload_config()
+        return
 
     def reload_config(self):
         """Reload settings."""
-        if self.msgrel:
-            print("[+] GAT Digital Extension Recarregando ...")
         load_setting = self._callbacks.loadExtensionSetting
         host_api_url = load_setting('host_api') or ''
         host_api_token = load_setting('api_token') or ''
@@ -302,27 +292,36 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.host_api.setText(host_api_url)
         self.api_token.setText(host_api_token)
 
+        if self.msgrel:
+            if self.host_api and self.api_token:
+                print("[+] API token, API url dados salvo")
+                print("[+] Recarregue: GAT Digital Extension")
+                return
+
         try:
-            self.apiGAT = GAT(host_api_url, host_api_token)
-            vapi = self.apiGAT.CheckAuth()
+            vapi = self.checkAuth()
 
             if vapi.status_code == 200:
                 data = json.loads(vapi.text)
                 print("[ ] Conectado: {}, {}".format(
                     data['name'], data['email'])
                 )
-                if self.msgrel:
-                    JOptionPane.showMessageDialog(
-                        None,
-                        "Conectado: {}, {}".format(
-                            data['name'], data['email']),
-                        "Informativo",
-                        JOptionPane.INFORMATION_MESSAGE)
+                # if self.msgrel:
+                JOptionPane.showMessageDialog(
+                    None,
+                    "Conectado: {}, {}".format(
+                        data['name'], data['email']),
+                    "Informativo",
+                    JOptionPane.INFORMATION_MESSAGE)
+
             else:
                 raise Exception("Status_Code({})".format(vapi.status_code))
+
         except Exception as e:
             print("[-] GAT Settings, erro ao conectar na API.")
             print("[-] Exception: {}".format(e))
+
+        return
 
     def getTabCaption(self):
         """Return the text to be displayed on the tab"""
@@ -354,7 +353,6 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                 lineterminator='\n'
             )
             writer.writeheader()
-            # for row in rows:
             writer.writerows(rows)
         csv_file.close()
 
@@ -366,9 +364,9 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
             path = os.getcwd()
             folder = "\\exports\\"
             file_name = "{}{}{}.csv".format(path, folder, Id)
-            self.launchThread(self.apiGAT.SendCSV, arguments=file_name)
+            self.launchThread(self.requestAPI, arguments=file_name)
 
-    def launchThread(self, targetFunction, arguments=None):
+    def launchThread(self, targetFunction, arguments=None, retur=False):
         """Launches a thread against a specified target function"""
         if arguments:
 
@@ -382,6 +380,10 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
         t.setDaemon(True)
         t.start()
+
+        if retur:
+            r = t.join()
+            return r
 
     def countHostIssues(self, requestResponses):
         count = 0
@@ -397,98 +399,77 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
         return count, icount
 
+    def requestAPI(self, filename):
+        load_setting = self._callbacks.loadExtensionSetting
+        api_uri = load_setting('host_api') or ''
+        api_token = load_setting('api_token') or ''
 
-class GAT():
-    def __init__(self, api, token):
-        self.authorization = token
-        self.gahost = api
+        name_csv = os.path.basename(filename)
+        resource = "/app/vulnerability/upload/api/Burp"
 
-    def RequestAPI(
-            self, api,
-            method, resource, token, payload=None, file=None, header=None):
-        """
-        Função generica para acesso API GAT
-        """
+        protocol = "http" if api_uri == "localhost" else "https"
+        gatPoint = "{}://{}{}".format(protocol, api_uri, resource)
 
-        s = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
-                                ca_certs=certifi.where()
-                                )
-
-        protocol = "http" if api == "localhost" else "https"
-        gatPoint = "{}://{}{}".format(protocol, api, resource)
-
-        # try:
-        # with requests.Session() as s:
-        if file:
-            header = {
-                'Authorization': 'Bearer %s' % token,
-                'Accept': 'application/json',
-                'cache-control': 'no-cache'
-            }
-        else:
-            header = {
-                'Content-Type': "application/json",
-                'Authorization': 'Bearer %s' % token
-            }
-
-        r = s.request(
-            method, gatPoint, fields=file, headers=header
-        )
-
-        # r = s.request(
-        #     method, gatPoint, json=payload, files=file, headers=header
-        # )
-
-        # except Exception as e:
-        response = {}
-        response["status_code"] = r.status
-        response["text"] = r.data.decode('utf-8')
-        r = DotDict(response)
-
-        # return r
-
-        return r
-
-    def CheckAuth(self):
-        """
-        Validar api + token GAT
-        """
-        resource = "/api/v1/me"
-        response = self.RequestAPI(self.gahost, 'GET', resource,
-                                   self.authorization)
-
-        return response
-
-    def SendCSV(self, filename):
-        """
-        Enviar CSV para o GAT efetuar o parser das Issues
-        """
         try:
-            name_csv = os.path.basename(filename)
-            resource = "/app/vulnerability/upload/api/Burp"
+            dataList = []
+            api_url = URL(gatPoint)
+            boundary = name_csv.replace(".csv", "")
 
-            file = {'file': (
-                name_csv, open(filename, 'rb').read(), 'text/csv'
-            )}
+            headers = ArrayList()
+            headers.add('POST %s HTTP/1.1' % resource)
+            headers.add('Host: %s' % api_uri)
+            headers.add('Authorization: Bearer %s' % api_token)
+            headers.add('Accept: application/json')
+            headers.add(
+                'Content-type: multipart/form-data; boundary={}'.format(
+                    boundary)
+            )
 
-            response = self.RequestAPI(self.gahost, 'POST', resource,
-                                       self.authorization, file=file)
+            dataList.append('--' + boundary)
+            dataList.append(
+                'Content-Disposition: form-data; name=file; filename={}'.format(
+                    name_csv)
+            )
+
+            dataList.append('Content-Type: text/csv')
+            dataList.append('')
+            with open(filename) as f:
+                dataList.append(f.read())
+
+            dataList.append('--'+boundary+'--')
+            dataList.append('')
+            body = '\r\n'.join(dataList)
+
+            newBody = self._helpers.bytesToString(body)
+
+            newRequest = self._helpers.buildHttpMessage(headers, newBody)
+
+            requestInfo = self._helpers.analyzeRequest(newRequest)
+            headers = requestInfo.getHeaders()
+
+            response = self._callbacks.makeHttpRequest(
+                api_url.getHost(), 443, True, newRequest)
+
+            response_info = self._helpers.analyzeResponse(response)
+
+            response_value = self._helpers.bytesToString(
+                response)[response_info.getBodyOffset():].encode("utf-8")
 
         except Exception as e:
             print("[-] Falha arquivo/envio de Issues ID:{} - Error: {}".format(
                 name_csv, e)
             )
 
-        if response.status_code == 200:
+        if response_info.getStatusCode() == 200:
             self.removeCSV(filename)
             print("[+] Success ID: {}".format(name_csv.replace(".csv", "")))
 
         else:
             print("[-] Falhou o envio do ID: {} - code :{}".format(
-                name_csv.replace(".csv", ""), response.status_code))
+                name_csv.replace(".csv", ""), response_info.getStatusCode()))
 
-            if response.text:
-                print("Error: {}".format(response.text))
+            if response_value:
+                print("Error: {}".format(response_value))
 
             JOptionPane.showMessageDialog(
                 None,
@@ -497,7 +478,44 @@ class GAT():
                 JOptionPane.ERROR_MESSAGE)
             self.removeCSV(filename)
 
-        return response
+    def checkAuth(self):
+        """
+        Validar api + token GAT
+        """
+        load_setting = self._callbacks.loadExtensionSetting
+        api_uri = load_setting('host_api') or ''
+        api_token = load_setting('api_token') or ''
+
+        resource = "/api/v1/me"
+
+        protocol = "http" if api_uri == "localhost" else "https"
+        gatPoint = "{}://{}{}".format(protocol, api_uri, resource)
+
+        api_url = URL(gatPoint)
+
+        headers = ArrayList()
+        headers.add('GET %s HTTP/1.1' % resource)
+        headers.add('Host: %s' % api_uri)
+        headers.add('Authorization: Bearer %s' % api_token)
+        headers.add('Content-Type: application/json')
+
+        newRequest = self._helpers.buildHttpMessage(headers, None)
+
+        requestInfo = self._helpers.analyzeRequest(newRequest)
+        headers = requestInfo.getHeaders()
+
+        response = self._callbacks.makeHttpRequest(
+            api_url.getHost(), 443, True, newRequest)
+
+        response_info = self._helpers.analyzeResponse(response)
+        response_value = self._helpers.bytesToString(
+            response)[response_info.getBodyOffset():].encode("utf-8")
+
+        response = {}
+        response['status_code'] = response_info.getStatusCode()
+        response['text'] = response_value
+        r = DotDict(response)
+        return r
 
     def removeCSV(self, path):
         """ param <path> could either be relative or absolute. """
