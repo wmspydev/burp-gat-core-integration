@@ -69,6 +69,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                    IBurpExtenderCallbacks):
 
     def __init__(self):
+        self.msgrel = False
         print("[+] Carregando GAT Digital Extension ...")
 
     def registerExtenderCallbacks(self, callbacks):
@@ -77,17 +78,16 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         """
         self._callbacks = callbacks
         self._helpers = self._callbacks.getHelpers()
-
         self._callbacks.setExtensionName("GAT Digital Integration")
-
-        self.reload_config()
 
         self.gui_elements = self.build_gui()
         callbacks.customizeUiComponent(self.gui_elements)
         callbacks.addSuiteTab(self)
+
         self._callbacks.registerContextMenuFactory(self)
         self._callbacks.registerScannerListener(self)
 
+        self.reload_config()
         print("[+] GAT Digital Extension carregado!")
 
     def newScanIssue(self, issue):
@@ -280,6 +280,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         save_setting = self._callbacks.saveExtensionSetting
         save_setting('host_api', self.host_api.getText())
         save_setting('api_token', self.api_token.getText())
+        self.msgrel = True
         self.reload_config()
         return
 
