@@ -197,18 +197,23 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                                     )
                                 )
 
-                            if IssueRecomBk:
-                                issue['Recommendation'] = IssueRecomBk.replace(
-                                    "\n", ""
-                                )
-
-                            if IssueRecom:
-                                issue['Recommendation'] += "{}{}".format(
-                                    sep,
-                                    IssueRecom.replace(
+                            if IssueRecomBk and IssueRecom:
+                                if IssueRecomBk:
+                                    issue[
+                                        'Recommendation'
+                                    ] = IssueRecomBk.replace(
                                         "\n", ""
                                     )
-                                )
+
+                                if IssueRecom:
+                                    issue['Recommendation'] += "{}{}".format(
+                                        sep,
+                                        IssueRecom.replace(
+                                            "\n", ""
+                                        )
+                                    )
+                            else:
+                                issue['Recommendation'] = IssueName
 
                             listIssues.append(issue)
 
@@ -277,9 +282,32 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
     def save_config(self, _):
         """Save settings."""
+        url = self.host_api.getText()
+        token = self.api_token.getText()
+
+        if re.match('https?://', url):
+            url = re.sub('https?://', '', url)
+
+        if url[-1:] == "/":
+            url = url[:-1]
+
+        if re.match('^(?i)Bearer ', token):
+            token = re.sub('^(?i)Bearer ', '', token)
+
+        if not re.match(
+            '([a-f\d]{8})-([a-f\d]{4})-([a-f\d]{4})-([a-f\d]{4})-([a-f\d]{12})',
+                token
+        ):
+            JOptionPane.showMessageDialog(
+                None,
+                "Formato de TOKEN invalido!",
+                "Error",
+                JOptionPane.ERROR_MESSAGE)
+            return
+
         save_setting = self._callbacks.saveExtensionSetting
-        save_setting('host_api', self.host_api.getText())
-        save_setting('api_token', self.api_token.getText())
+        save_setting('host_api', url)
+        save_setting('api_token', token)
         self.msgrel = True
         self.reload_config()
         return
@@ -295,6 +323,12 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
         if self.msgrel:
             if self.host_api and self.api_token:
+                JOptionPane.showMessageDialog(
+                    None,
+                    "API token, API url dados salvo\n ",
+                    "Informativo",
+                    JOptionPane.INFORMATION_MESSAGE)
+
                 print("[+] API token, API url dados salvo")
                 print("[+] Recarregue: GAT Digital Extension")
                 return
