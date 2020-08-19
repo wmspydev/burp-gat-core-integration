@@ -152,8 +152,8 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                                 issue['DetailsFinding_Title'] = IssueName
                                 issue['Recomenation_Title'] = IssueName
                             else:
-                                issue['DetailsFinding_Title'] = " "
-                                issue['Recomenation_Title'] = " "
+                                issue['DetailsFinding_Title'] = "No Issue name"
+                                issue['Recomenation_Title'] = "No Issue name"
 
                             if "False positive" in IssueCrit:
                                 sTag = "False positive"
@@ -167,7 +167,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                             if IssueCrit:
                                 issue['Severity'] = IssueCrit
                             else:
-                                issue['Severity'] = " "
+                                issue['Severity'] = "Informative"
 
                             issue['Web_Application_URI'] = "{}://{}".format(
                                 protocol, host)
@@ -184,10 +184,9 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
                             issue['sTag'] = sTag
 
-                            if IssueDescBk:
-                                issue['Description'] = IssueDescBk.replace(
-                                    "\n", ""
-                                )
+                            issue['Description'] = IssueDescBk.replace(
+                                "\n", ""
+                            )
 
                             if IssueDesc:
                                 issue['Description'] += "{}{}".format(
@@ -198,12 +197,11 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                                 )
 
                             if IssueRecomBk and IssueRecom:
-                                if IssueRecomBk:
-                                    issue[
-                                        'Recommendation'
-                                    ] = IssueRecomBk.replace(
-                                        "\n", ""
-                                    )
+                                issue[
+                                    'Recommendation'
+                                ] = IssueRecomBk.replace(
+                                    "\n", ""
+                                )
 
                                 if IssueRecom:
                                     issue['Recommendation'] += "{}{}".format(
