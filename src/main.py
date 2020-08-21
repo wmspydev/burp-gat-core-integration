@@ -553,7 +553,8 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
     def removeCSV(self, path):
         """ param <path> could either be relative or absolute. """
         if os.path.isfile(path) or os.path.islink(path):
-            os.remove(path)  # remove the file
+            pass
+            # os.remove(path)
         else:
             raise ValueError("file {} is not a file".format(path))
 
