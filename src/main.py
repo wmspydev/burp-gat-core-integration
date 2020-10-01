@@ -183,10 +183,14 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                                 issue['fTag'] = " "
 
                             issue['sTag'] = sTag
-
-                            issue['Description'] = IssueDescBk.replace(
-                                "\n", ""
-                            )
+                            
+                            if IssueDescBk:
+                                issue['Description'] = IssueDescBk.replace(
+                                    "\n", ""
+                                )
+                            else:
+                                issue['Description'] = ""
+                                
 
                             if IssueDesc:
                                 issue['Description'] += "{}{}".format(
