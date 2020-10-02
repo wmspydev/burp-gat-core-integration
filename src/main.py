@@ -184,7 +184,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
                             issue['sTag'] = sTag
                             
-                            if IssueDescBk:
+                            if IssueDescBk is not None:
                                 issue['Description'] = IssueDescBk.replace(
                                     "\n", ""
                                 )
@@ -192,31 +192,31 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                                 issue['Description'] = ""
                                 
 
-                            if IssueDesc:
+                            if IssueDesc is not None:
                                 issue['Description'] += "{}{}".format(
                                     sep,
                                     IssueDesc.replace(
                                         "\n", ""
                                     )
                                 )
-
-                            if IssueRecomBk and IssueRecom:
+                            
+                            if IssueRecomBk is not None:
                                 issue[
                                     'Recommendation'
                                 ] = IssueRecomBk.replace(
                                     "\n", ""
                                 )
-
-                                if IssueRecom:
-                                    issue['Recommendation'] += "{}{}".format(
-                                        sep,
-                                        IssueRecom.replace(
-                                            "\n", ""
-                                        )
-                                    )
                             else:
                                 issue['Recommendation'] = IssueName
 
+                            if IssueRecom is not None:
+                                issue['Recommendation'] += "{}{}".format(
+                                    sep,
+                                    IssueRecom.replace(
+                                        "\n", ""
+                                    )
+                                )
+                            
                             listIssues.append(issue)
 
                     self.generateReportGat(listIssues)
