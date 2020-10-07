@@ -70,6 +70,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
     def __init__(self):
         self.msgrel = False
+        self.project = False
         print("[+] Carregando GAT Digital Extension ...")
 
     def registerExtenderCallbacks(self, callbacks):
@@ -87,6 +88,9 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self._callbacks.registerContextMenuFactory(self)
         self._callbacks.registerScannerListener(self)
 
+        save_setting = self._callbacks.saveExtensionSetting
+        save_setting('project_id', None)
+
         self.reload_config()
         print("[+] GAT Digital Extension carregado!")
 
@@ -100,23 +104,49 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.fileId = []
         requestResponses = self.invocation.getSelectedMessages()
         chosts, ihosts = self.countHostIssues(requestResponses)
-        dialogConfirm = JOptionPane.showOptionDialog(
-            None,
-            "Encontrado {} host(s) com {} Issues,\n Continuar?".format(
-                chosts, ihosts
-            ),
-            "Confirmar",
-            JOptionPane.DEFAULT_OPTION,
-            JOptionPane.QUESTION_MESSAGE, None, ["Cancelar", "Sim"], "Sim"
-        )
+        # dialogConfirm = JOptionPane.showOptionDialog(
+        #     None,
+        #     "Encontrado {} host(s) com {} Issues,\n Continuar?".format(
+        #         chosts, ihosts
+        #     ),
+        #     "Confirmar",
+        #     JOptionPane.DEFAULT_OPTION,
+        #     JOptionPane.QUESTION_MESSAGE, None, ["Cancelar", "Sim"], "Sim"
+        # )
 
-        if not dialogConfirm:
-            JOptionPane.showMessageDialog(
+        # if not dialogConfirm:
+        #     JOptionPane.showMessageDialog(
+        #         None,
+        #         "Cancelado processamento/envio de Issues para GAT",
+        #         "Informativo",
+        #         JOptionPane.INFORMATION_MESSAGE)
+
+        load_setting = self._callbacks.loadExtensionSetting
+        project_id = load_setting('project_id') or None
+
+        if not project_id:
+            projectq = JOptionPane.showInputDialog(
                 None,
-                "Cancelado processamento/envio de Issues para GAT",
-                "Informativo",
-                JOptionPane.INFORMATION_MESSAGE)
-            return
+                "Qual projeto enviar Issues?",
+                "ID Projeto"
+            )
+
+            if projectq is not None:
+                ever = JOptionPane.showOptionDialog(
+                    None,
+                    "Solicitar Id Projeto novamente?",
+                    "da sessão atual?",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, None, [
+                        "Nunca", "Sim"], "Sim"
+                )
+
+                # let user select parameters for new session
+                if ever == JOptionPane.OK_OPTION:
+                    save_setting = self._callbacks.saveExtensionSetting
+                    save_setting('project_id', projectq)
+                # else:
+                #     return
 
         for reqResp in requestResponses:
             url = reqResp.getHttpService()
@@ -183,14 +213,13 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                                 issue['fTag'] = " "
 
                             issue['sTag'] = sTag
-                            
+
                             if IssueDescBk is not None:
                                 issue['Description'] = IssueDescBk.replace(
                                     "\n", ""
                                 )
                             else:
                                 issue['Description'] = ""
-                                
 
                             if IssueDesc is not None:
                                 issue['Description'] += "{}{}".format(
@@ -199,7 +228,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                                         "\n", ""
                                     )
                                 )
-                            
+
                             if IssueRecomBk is not None:
                                 issue[
                                     'Recommendation'
@@ -216,7 +245,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                                         "\n", ""
                                     )
                                 )
-                            
+
                             listIssues.append(issue)
 
                     self.generateReportGat(listIssues)
@@ -262,6 +291,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
         self.host_api = JTextField(100)
         self.api_token = JTextField(100)
+        self.project_id = JTextField(100)
 
         labels = JPanel(GridLayout(0, 1))
         labels.setBorder(EmptyBorder(10, 10, 10, 10))
@@ -277,6 +307,8 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         inputs.add(self.host_api)
         labels.add(JLabel('API Token:'))
         inputs.add(self.api_token)
+        labels.add(JLabel('Project ID:'))
+        inputs.add(self.project_id)
 
         btns.add(save_btn)
 
@@ -319,9 +351,11 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         load_setting = self._callbacks.loadExtensionSetting
         host_api_url = load_setting('host_api') or ''
         host_api_token = load_setting('api_token') or ''
+        project_id = ''
 
         self.host_api.setText(host_api_url)
         self.api_token.setText(host_api_token)
+        self.project_id.setText(project_id)
 
         if self.msgrel:
             if self.host_api and self.api_token:
@@ -440,10 +474,22 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         load_setting = self._callbacks.loadExtensionSetting
         api_uri = load_setting('host_api') or ''
         api_token = load_setting('api_token') or ''
+        project_id = load_setting('project_id') or ''
 
         name_csv = os.path.basename(filename)
-        resource = "/app/vulnerability/upload/api/Burp"
+        # print(project_id)
+        if project_id:
+            # if re.match(
+            #     '([a-f\d]{8})-([a-f\d]{4})-([a-f\d]{4})-([a-f\d]{4})-([a-f\d]{12})',
+            #     project_id
+            # ):
+            resource = "/app/vulnerability/upload/api/Burp/{}".format(
+                project_id
+            )
+        else:
+            resource = "/app/vulnerability/upload/api/Burp"
 
+        # print(resource)
         protocol = "http" if api_uri == "localhost" else "https"
         gatPoint = "{}://{}{}".format(protocol, api_uri, resource)
 
