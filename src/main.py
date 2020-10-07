@@ -121,10 +121,10 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         #         "Informativo",
         #         JOptionPane.INFORMATION_MESSAGE)
 
-        load_setting = self._callbacks.loadExtensionSetting
-        project_id = load_setting('project_id') or None
+        # load_setting = self._callbacks.loadExtensionSetting
+        # project_id = load_setting('project_id') or None
 
-        if not project_id:
+        if self.project <= 1:
             projectq = JOptionPane.showInputDialog(
                 None,
                 "Qual projeto enviar Issues?",
@@ -132,6 +132,9 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
             )
 
             if projectq is not None:
+                self.project_id.setText(projectq)
+                self.projectId = str(projectq)
+
                 ever = JOptionPane.showOptionDialog(
                     None,
                     "Solicitar Id Projeto novamente?",
@@ -143,10 +146,11 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
                 # let user select parameters for new session
                 if ever == JOptionPane.OK_OPTION:
-                    save_setting = self._callbacks.saveExtensionSetting
-                    save_setting('project_id', projectq)
-                # else:
-                #     return
+                    # save_setting = self._callbacks.saveExtensionSetting
+                    # save_setting('project_id', projectq)
+                    self.project = 2
+                else:
+                    self.project = 1
 
         for reqResp in requestResponses:
             url = reqResp.getHttpService()
@@ -252,6 +256,10 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
         # iniciar threads
         print("[+] Thread(s) Iniciada(s)...")
+        if self.project:
+            print("[+] Enviando Issues para ProjectId: {}".format(
+                self.projectId
+            ))
         print("[+] Enviando {} host(s), total de {} Issue(s),\n".format(
             chosts, ihosts
         ))
@@ -351,11 +359,11 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         load_setting = self._callbacks.loadExtensionSetting
         host_api_url = load_setting('host_api') or ''
         host_api_token = load_setting('api_token') or ''
-        project_id = ''
+        # project_id = ''
 
         self.host_api.setText(host_api_url)
         self.api_token.setText(host_api_token)
-        self.project_id.setText(project_id)
+        # self.project_id.setText(project_id)
 
         if self.msgrel:
             if self.host_api and self.api_token:
@@ -474,18 +482,19 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         load_setting = self._callbacks.loadExtensionSetting
         api_uri = load_setting('host_api') or ''
         api_token = load_setting('api_token') or ''
-        project_id = load_setting('project_id') or ''
+        projectid = self.projectId
 
         name_csv = os.path.basename(filename)
         # print(project_id)
-        if project_id:
+        if projectid:
             # if re.match(
             #     '([a-f\d]{8})-([a-f\d]{4})-([a-f\d]{4})-([a-f\d]{4})-([a-f\d]{12})',
             #     project_id
             # ):
             resource = "/app/vulnerability/upload/api/Burp/{}".format(
-                project_id
+                projectid
             )
+
         else:
             resource = "/app/vulnerability/upload/api/Burp"
 
