@@ -71,6 +71,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
     def __init__(self):
         self.msgrel = False
         self.project = False
+        self.projectId = None
         print("[+] Carregando GAT Digital Extension ...")
 
     def registerExtenderCallbacks(self, callbacks):
