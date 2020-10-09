@@ -26,18 +26,24 @@ from burp import IHttpService
 
 from java.awt import BorderLayout
 from java.awt import GridLayout
+from java.awt import FlowLayout
+from java.awt import Dimension
 from java.awt import Color
 from java.awt import Font
 
 from java.awt.event import ActionListener
 
 
-from javax.swing import (JMenuItem)
-from javax.swing import JTextField
+from javax.swing import Box
+from javax.swing import BoxLayout
 from javax.swing import JLabel
 from javax.swing import JPanel
 from javax.swing import JButton
 from javax.swing import JOptionPane
+from javax.swing import (JMenuItem)
+from javax.swing import JTextField
+from javax.swing import ImageIcon
+from javax.swing import SwingConstants
 
 from javax.swing.border import EmptyBorder
 
@@ -126,20 +132,44 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         # project_id = load_setting('project_id') or None
 
         if self.project <= 1:
-            projectq = JOptionPane.showInputDialog(
+            # projectq = JOptionPane.showInputDialog(
+            #     None,
+            #     "Qual projeto enviar Issues?",
+            #     "ID Projeto"
+            # )
+            panelinput = JPanel()
+            panelinput.add(JLabel("Projeto ID: "))
+            projectq = JTextField(20)
+            panelinput.add(projectq)
+
+            result = JOptionPane.showOptionDialog(
                 None,
+                panelinput,
                 "Qual projeto enviar Issues?",
-                "ID Projeto"
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                None, ["OK", "Sem projeto"], "OK"
             )
 
-            if projectq is not None:
-                self.project_id.setText(projectq)
-                self.projectId = str(projectq)
+            if result == JOptionPane.OK_OPTION:
+                self.project_id.setText(projectq.getText())
+                self.projectId = str(projectq.getText())
+                if not re.match('([0-9a-f]{24})', self.projectId):
+                    self.projectId = None
+                    mess = "Projeto Id formato inválido".decode("utf8")
+                    JOptionPane.showMessageDialog(
+                        None,
+                        mess,
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE)
 
+                    return
+
+                mess = "Sessão atual".decode("utf8")
                 ever = JOptionPane.showOptionDialog(
                     None,
-                    "Solicitar Id Projeto novamente?",
-                    "da sessão atual?",
+                    "Solicitar Id de Projeto novamente?",
+                    mess,
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.QUESTION_MESSAGE, None, [
                         "Nunca", "Sim"], "Sim"
@@ -258,7 +288,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         # iniciar threads
         print("[+] Thread(s) Iniciada(s)...")
         if self.project:
-            print("[+] Enviando Issues para ProjectId: {}".format(
+            print("[+] Enviando Issues para o Project Id: {}".format(
                 self.projectId
             ))
         print("[+] Enviando {} host(s), total de {} Issue(s),\n".format(
@@ -293,35 +323,78 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
     def build_gui(self):
         """Construct GUI elements."""
+
+        Mpanel = JPanel()
+        # Mpanel.setLayout(GridLayout(0, 3))
+        Mpanel.setLayout(BoxLayout(Mpanel, BoxLayout.X_AXIS))
+
         panel = JPanel()
-        panel.setBorder(EmptyBorder(10, 10, 10, 10))
+        panel.setLayout(None)
 
-        save_btn = JButton('Salvar', actionPerformed=self.save_config)
+        Mpanel.add(Box.createVerticalGlue())
+        Mpanel.add(panel)
+        Mpanel.add(Box.createVerticalGlue())
 
-        self.host_api = JTextField(100)
-        self.api_token = JTextField(100)
-        self.project_id = JTextField(100)
+        logo = JLabel(
+            ImageIcon(
+                URL(
+                    "https://www.gat.digital/wp-content/uploads/2019/05/gat_logo_sticky.png"
+                )))
+        logo.setBounds(150, 40, 165, 49)
 
-        labels = JPanel(GridLayout(0, 1))
-        labels.setBorder(EmptyBorder(10, 10, 10, 10))
-        inputs = JPanel(GridLayout(0, 1))
-        inputs.setBorder(EmptyBorder(10, 10, 10, 10))
-        btns = JPanel(GridLayout(0, 1))
-        btns.setBorder(EmptyBorder(10, 10, 10, 10))
-        panel.add(labels, BorderLayout.WEST)
-        panel.add(inputs, BorderLayout.CENTER)
-        panel.add(btns, BorderLayout.SOUTH)
+        save_btn = JButton(
+            'Salvar', actionPerformed=self.save_config
+        )
+        save_btn.setBounds(100, 240, 75, 30)
+        save_btn.setPreferredSize(Dimension(75, 30))
 
-        labels.add(JLabel('API Url:'))
-        inputs.add(self.host_api)
-        labels.add(JLabel('API Token:'))
-        inputs.add(self.api_token)
-        labels.add(JLabel('Project ID:'))
-        inputs.add(self.project_id)
+        limpar_btn = JButton(
+            'Limpar ID Projeto', actionPerformed=self.clsProjectId
+        )
+        limpar_btn.setBounds(250, 240, 150, 30)
+        limpar_btn.setPreferredSize(Dimension(150, 30))
 
-        btns.add(save_btn)
+        label_h = JLabel('API Url:')
+        label_h.setHorizontalAlignment(SwingConstants.RIGHT)
+        label_h.setBounds(0, 120, 95, 30)
+        label_h.setPreferredSize(Dimension(100, 30))
 
-        return panel
+        self.host_api = JTextField(50)
+        self.host_api.setBounds(100, 120, 300, 30)
+        self.host_api.setPreferredSize(Dimension(250, 30))
+
+        label_a = JLabel('API Token:')
+        label_a.setHorizontalAlignment(SwingConstants.RIGHT)
+        label_a.setBounds(0, 160, 95, 30)
+        label_a.setPreferredSize(Dimension(100, 30))
+
+        self.api_token = JTextField(50)
+        self.api_token.setBounds(100, 160, 300, 30)
+        self.api_token.setPreferredSize(Dimension(250, 30))
+
+        label_p = JLabel('Project ID:')
+        label_p.setHorizontalAlignment(SwingConstants.RIGHT)
+        label_p.setBounds(0, 200, 95, 30)
+        label_p.setPreferredSize(Dimension(100, 30))
+
+        self.project_id = JTextField(50)
+        self.project_id.setForeground(Color.orange)
+        self.project_id.setBackground(Color.gray)
+        self.project_id.setBounds(100, 200, 300, 30)
+        self.project_id.setPreferredSize(Dimension(250, 30))
+        self.project_id.editable = False
+
+        panel.add(logo)
+        panel.add(label_h)
+        panel.add(self.host_api)
+        panel.add(label_a)
+        panel.add(self.api_token)
+        panel.add(label_p)
+        panel.add(self.project_id)
+        panel.add(limpar_btn)
+        panel.add(save_btn)
+
+        return Mpanel
 
     def save_config(self, _):
         """Save settings."""
@@ -486,12 +559,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         projectid = self.projectId
 
         name_csv = os.path.basename(filename)
-        # print(project_id)
         if projectid:
-            # if re.match(
-            #     '([a-f\d]{8})-([a-f\d]{4})-([a-f\d]{4})-([a-f\d]{4})-([a-f\d]{12})',
-            #     project_id
-            # ):
             resource = "/app/vulnerability/upload/api/Burp/{}".format(
                 projectid
             )
@@ -616,6 +684,16 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
             os.remove(path)
         else:
             raise ValueError("file {} is not a file".format(path))
+
+    def clsProjectId(self, _):
+        self.project_id.setText(None)
+        self.project = False
+        self.projectId = None
+        JOptionPane.showMessageDialog(
+            None,
+            "Redefinido envio de Issues sem Projeto.",
+            "Informativo",
+            JOptionPane.INFORMATION_MESSAGE)
 
 
 class DotDict(dict):
