@@ -78,7 +78,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.msgrel = False
         self.project = False
         self.projectId = None
-        print("[+] Carregando GAT CORE Extension ...")
+        print("[+] Carregando GAT CORE Extension...")
 
     def registerExtenderCallbacks(self, callbacks):
         """
@@ -111,32 +111,8 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.fileId = []
         requestResponses = self.invocation.getSelectedMessages()
         chosts, ihosts = self.countHostIssues(requestResponses)
-        # dialogConfirm = JOptionPane.showOptionDialog(
-        #     None,
-        #     "Encontrado {} host(s) com {} Issues,\n Continuar?".format(
-        #         chosts, ihosts
-        #     ),
-        #     "Confirmar",
-        #     JOptionPane.DEFAULT_OPTION,
-        #     JOptionPane.QUESTION_MESSAGE, None, ["Cancelar", "Sim"], "Sim"
-        # )
-
-        # if not dialogConfirm:
-        #     JOptionPane.showMessageDialog(
-        #         None,
-        #         "Cancelado processamento/envio de Issues para GAT",
-        #         "Informativo",
-        #         JOptionPane.INFORMATION_MESSAGE)
-
-        # load_setting = self._callbacks.loadExtensionSetting
-        # project_id = load_setting('project_id') or None
 
         if self.project <= 1:
-            # projectq = JOptionPane.showInputDialog(
-            #     None,
-            #     "Qual projeto enviar Issues?",
-            #     "ID Projeto"
-            # )
             panelinput = JPanel()
             panelinput.add(JLabel("Projeto ID: "))
             projectq = JTextField(20)
@@ -177,8 +153,6 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
                 # let user select parameters for new session
                 if ever == JOptionPane.OK_OPTION:
-                    # save_setting = self._callbacks.saveExtensionSetting
-                    # save_setting('project_id', projectq)
                     self.project = 2
                 else:
                     self.project = 1
