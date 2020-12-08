@@ -1,67 +1,61 @@
 **Burp Extension, integration GAT Digital**
 
-Extensão para o Burp desenvolvida em ambiente Python.
-
-*Integração via interface do Burp para efetuar o envio de todos os apontamentos com base na seleção de Target --> Hosts únicos ou múltiplos*
+*Submitting Issues analyzed in Burp based on Target selection -> Single or multiple Hosts to GAT CORE*
 
 ---
 
-## Instalação
+## Installation
 
-* Requisitos:
+* Requirements:
     1. ***BURP PROFESSIONAL***
     2. ***Jython JAR***
 
-### Primeiro passo - **Clonar** repositório para o Desktop/Server onde está o Burp Professional instalado.
+### First step - **Clone** the repository for the location where Burp Professional is installed..
 
-```
-git clone https://bitbucket.org/IBLISS-GAT-DEV/gat-burp-extension.git
-```
-
-### Clicar no Tab **Extender**
-1. Ir no Tab **Options** configurar em "Python Evironment"
-    * Location of Jython standalone JAR file, configurar para a pasta/arquivo: "~\burp-extension\jython\jython-standalone-2.7.2.jar"
+### Click on Tab **Extender**
+1. Go to subTab **Options** set to "Python Evironment"
+     * Location of Jython standalone JAR file, set to the folder / file: "~ \ burp-extension \ jython \ jython-standalone-2.7.2.jar"
 
 
-![Alt text](images/img-1.png?raw=true "Environment Configuração")
+![Alt text](images/img-1.png?raw=true "Environment Configuration")
 
-2. Ir no Tab **Extender**
-    * Clicando em "Add", seguir o wizard em "Extension Details"
-    selecionar "Type" Python e selecionar o arquivo main.py em: "~\burp-extension\src\main.py"
+2. Go to subTab **Extensions**
+     * Clicking on "Add", following the wizard on "Extension Details"
+     select "Type" Python and select the main.py file at: "~\burp-gat-core-integration\src\main.py"
 
-![Alt text](images/img-2.png?raw=true "Extension Configuração")
+![Alt text](images/img-2.png?raw=true "Extension Configuration")
 
-### Clicar no Tab **GAT Settings**
-* Configurar API Url e API Token, clicar em Salvar. Efetuar o reload da extension GAT Digital Integration no Tab **Extender**
+### Click on Tab **GAT Core Settings**
+* Configure your API Url and API Token, click Save. Reload the GAT Core Integration extension in Tab ** Extender **
 
-![Alt text](images/img-4.png?raw=true "API Configuração")
+![Alt text](images/img-4.png?raw=true "API Configuration")
 
-* Com os dados de Url e Token, será exibido um alerta confirmando a autenticação
+* When you finish entering the Url, Token and Reload, popup will be displayed confirming successful authentication
 
-![Alt text](images/img-5.png?raw=true "API Conectado")
+![Alt text](images/img-5.png?raw=true "API Connect")
 ---
 
-## Utilizando a extensão
-No Tab "Target" ao clicar com botão direito do mouse, terá disponível a opção no menu suspenso "Enviar Issues para GAT"
+## Using the extension
+In the "Target" Tab when clicking with the right mouse button, the option "Enviar Issues para GAT" will be available in the drop-down menu
 
-![Alt text](images/img-6.png?raw=true "Menu Enviar")
+![Alt text](images/img-6.png?raw=true "Sending")
 
 Pode ser utilizado selecionando um único hosts ou multiplos hosts, a cada envio será confirmado o número de hosts e quantidade de Issues será enviada.
 
-![Alt text](images/img-7.png?raw=true "Menu Enviar")
+![Alt text](images/img-7.png?raw=true "Confirm")
 
-![Alt text](images/img-3.png?raw=true "Enviando Issues para GAT")
+![Alt text](images/img-3.png?raw=true "Sending Issues GAT Core")
 
-Após o envio no Tab "Extender", subTab "Output" será confirmado o processamento e envio das Issues.
+After sending in the Tab "Extender", subTab "Output" will be confirmed the processing and sending of Issues.
 
-![Alt text](images/img-8.png?raw=true "Enviando Issues para GAT")
+![Alt text](images/img-8.png?raw=true " Issues GAT Core Send")
 
-## Conferindo no GAT
-Ao acessar "GAT" já estará disponível as notificações de todos os processos enviados via Extensão do BURP
+## Checking-in GAT CORE
+When accessing "GAT Core", notifications of all processes sent via BURP Extension will be available
 
-![Alt text](images/img-9.png?raw=true "Lista Uploads")
+![Alt text](images/img-9.png?raw=true "Listing Uploads")
 
-Acessando o menu laterial "Integração" é possivel verificar maiores informações sobre o processamento dos arquivos com os Apontamentos enviados para o "GAT".
+Accessing the side menu "Integration" it is possible to check more information about the processing of the files with the Notes sent to the "GAT Core"
 
-![Alt text](images/img-10.png?raw=true "Maiores Infos Processo")
+![Alt text](images/img-10.png?raw=true "More infos process")
 ---

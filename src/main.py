@@ -6,8 +6,8 @@
 
   Filename: main.py
   File Id: 0001
-  Project: Burp Extension Gat Integration
-  Description: Extension to integration scan results to centralized gat scans
+  Project: Burp Extension Gat Core Integration
+  Description: Extension to integration scan results to centralized GAT Core scans
 
 
   Date           Version      Action          Author             Changes
@@ -78,7 +78,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.msgrel = False
         self.project = False
         self.projectId = None
-        print("[+] Carregando GAT Digital Extension ...")
+        print("[+] Carregando GAT CORE Extension ...")
 
     def registerExtenderCallbacks(self, callbacks):
         """
@@ -86,7 +86,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         """
         self._callbacks = callbacks
         self._helpers = self._callbacks.getHelpers()
-        self._callbacks.setExtensionName("GAT Digital Integration")
+        self._callbacks.setExtensionName("GAT CORE Integration")
 
         self.gui_elements = self.build_gui()
         callbacks.customizeUiComponent(self.gui_elements)
@@ -99,7 +99,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         save_setting('project_id', None)
 
         self.reload_config()
-        print("[+] GAT Digital Extension carregado!")
+        print("[+] GAT CORE Extension carregado!")
 
     def newScanIssue(self, issue):
         print("[+] Issue encontrada (%s)" % issue.getIssueName())
@@ -303,7 +303,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.invocation = invocation
         context = invocation.getInvocationContext()
         if context in [invocation.CONTEXT_TARGET_SITE_MAP_TREE]:
-            sendToGAT = JMenuItem("Enviar Issues para GAT")
+            sendToGAT = JMenuItem("Enviar Issues para GAT CORE")
 
             # sendToGAT.setForeground(Color.ORANGE)
             FONT = sendToGAT.getFont()
@@ -448,7 +448,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                     JOptionPane.INFORMATION_MESSAGE)
 
                 print("[+] API token, API url dados salvo")
-                print("[+] Recarregue: GAT Digital Extension")
+                print("[+] Recarregue: GAT CORE Extension")
                 return
 
         try:
@@ -471,14 +471,14 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                 raise Exception("Status_Code({})".format(vapi.status_code))
 
         except Exception as e:
-            print("[-] GAT Settings, erro ao conectar na API.")
+            print("[-] GAT CORE Settings, erro ao conectar na API.")
             print("[-] Exception: {}".format(e))
 
         return
 
     def getTabCaption(self):
         """Return the text to be displayed on the tab"""
-        return "GAT Settings"
+        return "GAT CORE Settings"
 
     def getUiComponent(self):
         """Passes the UI to burp"""
