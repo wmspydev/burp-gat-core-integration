@@ -47,9 +47,8 @@ from javax.swing import SwingConstants
 
 from javax.swing.border import EmptyBorder
 
-from java.io import File
 from java.net import URL
-from java.net import URI
+import java.lang.ClassLoader
 
 from java.util import ArrayList
 
@@ -309,11 +308,11 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         Mpanel.add(panel)
         Mpanel.add(Box.createVerticalGlue())
 
+        img = os.path.abspath("gat_logo_sticky.png")
+
         logo = JLabel(
-            ImageIcon(
-                URL(
-                    "https://www.gat.digital/wp-content/uploads/2019/05/gat_logo_sticky.png"
-                )))
+            ImageIcon(img)
+        )
         logo.setBounds(150, 40, 165, 49)
 
         save_btn = JButton(
