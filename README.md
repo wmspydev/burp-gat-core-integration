@@ -40,7 +40,7 @@ In the "Target" Tab when clicking with the right mouse button, the option "Envia
 
 ![Alt text](images/img-6.png?raw=true "Sending")
 
-Pode ser utilizado selecionando um único hosts ou multiplos hosts, a cada envio será confirmado o número de hosts e quantidade de Issues será enviada.
+It can be used by selecting a single host or multiple hosts, with each submission, the number of hosts will be confirmed and their number of issues..
 
 ![Alt text](images/img-7.png?raw=true "Confirm")
 
