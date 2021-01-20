@@ -126,6 +126,10 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                 None, ["OK", "Sem projeto"], "OK"
             )
 
+            if result == -1:
+                print("[-] Cancelado envio!")
+                return
+
             if result == JOptionPane.OK_OPTION:
                 self.project_id.setText(projectq.getText())
                 self.projectId = str(projectq.getText())

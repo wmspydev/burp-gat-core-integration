@@ -38,15 +38,13 @@
 ## Using the extension
 In the "Target" Tab when clicking with the right mouse button, the option "Enviar Issues para GAT" will be available in the drop-down menu
 
-![Alt text](images/img-6.png?raw=true "Sending")
-
-It can be used by selecting a single host or multiple hosts, with each submission, the number of hosts will be confirmed and their number of issues..
-
-![Alt text](images/img-7.png?raw=true "Confirm")
-
 ![Alt text](images/img-3.png?raw=true "Sending Issues GAT Core")
 
-After sending in the Tab "Extender", subTab "Output" will be confirmed the processing and sending of Issues.
+After clicking on "Enviar Issues para GAT", you must confirm project to send hosts or not use project.
+
+![Alt text](images/img-7.png?raw=true "Sending")
+
+The number of hosts will be confirmed and their number of issues. After sending in the Tab "Extender", subTab "Output" will be confirmed the processing and sending of Issues.
 
 ![Alt text](images/img-8.png?raw=true " Issues GAT Core Send")
 
