@@ -12,10 +12,9 @@
 
 ### First step - **Clone** the repository for the location where Burp Professional is installed..
 
-### Click on Tab **Extender**
-1. Go to subTab **Options** set to "Python Evironment"
+### Click on Tab **Extensions** click on settings, new windows open.
+1. Go to subTab **Extensions** set to "Python Evironment"
      * Location of Jython standalone JAR file, set to the folder / file: "~ \ burp-extension \ jython \ jython-standalone-2.7.2.jar"
-
 
 ![Alt text](images/img-1.png?raw=true "Environment Configuration")
 
@@ -27,6 +26,7 @@
 
 ### Click on Tab **GAT Core Settings**
 * Configure your API Url and API Token, click Save. Reload the GAT Core Integration extension in Tab ** Extender **
+* If u are using PROJECT ID it´s print hash in textbox
 
 ![Alt text](images/img-4.png?raw=true "API Configuration")
 
@@ -34,13 +34,14 @@
 
 ![Alt text](images/img-5.png?raw=true "API Connect")
 ---
-
+## New Menu for GAT Infosec on TARGET in Extensions subMenu
+![Alt text](images/img-6.png?raw=true "Sending")
 ## Using the extension
-In the "Target" Tab when clicking with the right mouse button, the option "Enviar Issues para GAT" will be available in the drop-down menu
+In the "Target" Tab when clicking with the right mouse button, the option submenu "Extensions" click on "GAT CORE Integration" --> "Sending Issues" will be available in the drop-down menu
 
-![Alt text](images/img-3.png?raw=true "Sending Issues GAT Core")
+![Alt text](images/img-3.png?raw=true "Sending Issues")
 
-After clicking on "Enviar Issues para GAT", you must confirm project to send hosts or not use project.
+After clicking on "Sending Issues", you must confirm project to send hosts or not use project.
 
 ![Alt text](images/img-7.png?raw=true "Sending")
 

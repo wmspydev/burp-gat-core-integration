@@ -102,7 +102,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         print("[+] GAT CORE Extension loaded!")
 
     def newScanIssue(self, issue):
-        print("[+] Issue encontrada (%s)" % issue.getIssueName())
+        print("[+] Issues found (%s)" % issue.getIssueName())
         return
 
     def actionTarget(self, event):
@@ -283,7 +283,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.invocation = invocation
         context = invocation.getInvocationContext()
         if context in [invocation.CONTEXT_TARGET_SITE_MAP_TREE]:
-            sendToGAT = JMenuItem("Send Issues to GAT CORE")
+            sendToGAT = JMenuItem("Send Issues")
 
             sendToGAT.setForeground(Color.GREEN.darker())
             FONT = sendToGAT.getFont()
