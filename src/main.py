@@ -283,7 +283,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.invocation = invocation
         context = invocation.getInvocationContext()
         if context in [invocation.CONTEXT_TARGET_SITE_MAP_TREE]:
-            sendToGAT = JMenuItem("Send Issues")
+            sendToGAT = JMenuItem("Send Issues to GAT CORE")
 
             sendToGAT.setForeground(Color.GREEN.darker())
             FONT = sendToGAT.getFont()

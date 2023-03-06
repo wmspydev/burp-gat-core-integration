@@ -37,9 +37,9 @@
 ## New Menu for GAT Infosec on TARGET in Extensions subMenu
 ![Alt text](images/img-6.png?raw=true "Sending")
 ## Using the extension
-In the "Target" Tab when clicking with the right mouse button, the option submenu "Extensions" click on "GAT CORE Integration" --> "Sending Issues" will be available in the drop-down menu
+In the "Target" Tab when clicking with the right mouse button, the option submenu "Extensions" click on "GAT CORE Integration" --> "Sending Issues to GAT CORE" will be available in the drop-down menu
 
-![Alt text](images/img-3.png?raw=true "Sending Issues")
+![Alt text](images/img-3.png?raw=true "Sending Issues to GAT CORE")
 
 After clicking on "Sending Issues", you must confirm project to send hosts or not use project.
 
