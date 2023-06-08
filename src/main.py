@@ -13,6 +13,7 @@
   Date           Version      Action          Author             Changes
   ------------------------------------------------------------------------------
   2020/07/17      1.0          Init            Julio C. Almeida   N/A
+  2023/03/06      1.0          Change          Julio C. Almeida   getScanIssues() and Languages
 *******************************************************************************/
 """
 
@@ -77,7 +78,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.msgrel = False
         self.project = False
         self.projectId = None
-        print("[+] Carregando GAT CORE Extension...")
+        print("[+] Loading... GAT CORE Extension")
 
     def registerExtenderCallbacks(self, callbacks):
         """
@@ -98,10 +99,10 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         save_setting('project_id', None)
 
         self.reload_config()
-        print("[+] GAT CORE Extension carregado!")
+        print("[+] GAT CORE Extension loaded!")
 
     def newScanIssue(self, issue):
-        print("[+] Issue encontrada (%s)" % issue.getIssueName())
+        print("[+] Issues found (%s)" % issue.getIssueName())
         return
 
     def actionTarget(self, event):
@@ -113,21 +114,21 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
         if self.project <= 1:
             panelinput = JPanel()
-            panelinput.add(JLabel("Projeto ID: "))
+            panelinput.add(JLabel("Project ID: "))
             projectq = JTextField(20)
             panelinput.add(projectq)
 
             result = JOptionPane.showOptionDialog(
                 None,
                 panelinput,
-                "Qual projeto enviar Issues?",
+                "Which project to send Issues?",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                None, ["OK", "Sem projeto"], "OK"
+                None, ["OK", "No Project"], "OK"
             )
 
             if result == -1:
-                print("[-] Cancelado envio!")
+                print("[-] Sending of Issues cancelled!")
                 return
 
             if result == JOptionPane.OK_OPTION:
@@ -135,7 +136,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                 self.projectId = str(projectq.getText())
                 if not re.match('([0-9a-f]{24})', self.projectId):
                     self.projectId = None
-                    mess = "Projeto Id formato inválido".decode("utf8")
+                    mess = "Project Id, invalid format!".decode("utf8")
                     JOptionPane.showMessageDialog(
                         None,
                         mess,
@@ -144,10 +145,10 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
                     return
 
-                mess = "Sessão atual".decode("utf8")
+                mess = "Current session".decode("utf8")
                 ever = JOptionPane.showOptionDialog(
                     None,
-                    "Solicitar Id de Projeto novamente?",
+                    "Request Project Id again?",
                     mess,
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.QUESTION_MESSAGE, None, [
@@ -161,8 +162,10 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                     self.project = 1
 
         for reqResp in requestResponses:
-            url = reqResp.getHttpService()
-            requestIssues = self._callbacks.getScanIssues(str(url))
+            prtl = reqResp.getHttpService().getProtocol()
+            url = reqResp.getHttpService().getHost()
+
+            requestIssues = self._callbacks.getScanIssues("{}://{}".format(prtl, url))
             listIssues = []
 
             if requestIssues:
@@ -263,12 +266,12 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                     self.generateReportGat(listIssues)
 
         # iniciar threads
-        print("[+] Thread(s) Iniciada(s)...")
+        print("[+] Thread(s) Started...")
         if self.project:
-            print("[+] Enviando Issues para o Project Id: {}".format(
+            print("[+] Sending Issues to Project ID: {}".format(
                 self.projectId
             ))
-        print("[+] Enviando {} host(s), total de {} Issue(s),\n".format(
+        print("[+] Sending {} host(s), total of {} Issue(s),\n".format(
             chosts, ihosts
         ))
         self.launchThread(self.sendIssues)
@@ -280,9 +283,9 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.invocation = invocation
         context = invocation.getInvocationContext()
         if context in [invocation.CONTEXT_TARGET_SITE_MAP_TREE]:
-            sendToGAT = JMenuItem("Enviar Issues para GAT CORE")
+            sendToGAT = JMenuItem("Send Issues to GAT CORE")
 
-            # sendToGAT.setForeground(Color.ORANGE)
+            sendToGAT.setForeground(Color.GREEN.darker())
             FONT = sendToGAT.getFont()
             sendToGAT.setFont(Font(
                 FONT.getFontName(), Font.BOLD, FONT.getSize())
@@ -320,7 +323,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         logo.setBounds(150, 40, 165, 49)
 
         save_btn = JButton(
-            'Salvar', actionPerformed=self.save_config
+            'Save', actionPerformed=self.save_config
         )
         save_btn.setBounds(100, 240, 75, 30)
         save_btn.setPreferredSize(Dimension(75, 30))
@@ -393,7 +396,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         ):
             JOptionPane.showMessageDialog(
                 None,
-                "Formato de TOKEN invalido!",
+                "Invalid TOKEN format!",
                 "Error",
                 JOptionPane.ERROR_MESSAGE)
             return
@@ -420,26 +423,36 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
             if self.host_api and self.api_token:
                 JOptionPane.showMessageDialog(
                     None,
-                    "API token, API url dados salvo\n ",
+                    "API token and API url has been saved,\n \
+                     Need to reload the extension",
                     "Informativo",
                     JOptionPane.INFORMATION_MESSAGE)
 
-                print("[+] API token, API url dados salvo")
-                print("[+] Recarregue: GAT CORE Extension")
+                print("[+] API token and API url been saved")
+                print("[+] It´s necessary to reload the GAT Security Platform extension")
                 return
+            else:
+                JOptionPane.showMessageDialog(
+                    None,
+                    "Unable to find GAT Core integration settings\n ",
+                    "Informativo",
+                    JOptionPane.INFORMATION_MESSAGE)
+
+            print("[+] Configure Integration in Tab(GAT CORE Settings)")
+            return
 
         try:
             vapi = self.checkAuth()
 
             if vapi.status_code == 200:
                 data = json.loads(vapi.text)
-                print("[ ] Conectado: {}, {}".format(
+                print("[ ] Connected: {}, {}".format(
                     data['name'], data['email'])
                 )
                 # if self.msgrel:
                 JOptionPane.showMessageDialog(
                     None,
-                    "Conectado: {}, {}".format(
+                    "Connected: {}, {}".format(
                         data['name'], data['email']),
                     "Informativo",
                     JOptionPane.INFORMATION_MESSAGE)
@@ -448,7 +461,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                 raise Exception("Status_Code({})".format(vapi.status_code))
 
         except Exception as e:
-            print("[-] GAT CORE Settings, erro ao conectar na API.")
+            print("[-] GAT CORE Settings problem, can't connect to API.")
             print("[-] Exception: {}".format(e))
 
         return
@@ -490,13 +503,13 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
     def sendIssues(self):
         for Id in self.fileId:
-            print("[+] Processando ID: {}".format(Id))
+            print("[+] Processing ID: {}".format(Id))
             path = os.getcwd()
             folder = "\\exports\\"
             file_name = "{}{}{}.csv".format(path, folder, Id)
             self.launchThread(self.requestAPI, arguments=file_name)
 
-    def launchThread(self, targetFunction, arguments=None, retur=False):
+    def launchThread(self, targetFunction, arguments=None, retur=False):   
         """Launches a thread against a specified target function"""
         if arguments:
 
@@ -519,8 +532,10 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         count = 0
         icount = 0
         for reqResp in requestResponses:
-            url = reqResp.getHttpService()
-            requestIssues = self._callbacks.getScanIssues(str(url))
+            prtl = reqResp.getHttpService().getProtocol()
+            url = reqResp.getHttpService().getHost()
+            requestIssues = self._callbacks.getScanIssues("{}://{}".format(prtl, url))
+
             if requestIssues:
                 if len(requestIssues) > 0:
                     count += 1
@@ -594,7 +609,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
                 response)[response_info.getBodyOffset():].encode("utf-8")
 
         except Exception as e:
-            print("[-] Falha arquivo/envio de Issues ID:{} - Error: {}".format(
+            print("[-] Issues failed file or sending ID:{} - Error: {}".format(
                 name_csv, e)
             )
 
@@ -603,7 +618,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
             print("[+] Success ID: {}".format(name_csv.replace(".csv", "")))
 
         else:
-            print("[-] Falhou o envio do ID: {} - code :{}".format(
+            print("[-] Failed sending Issues ID: {} - code :{}".format(
                 name_csv.replace(".csv", ""), response_info.getStatusCode()))
 
             if response_value:
@@ -611,7 +626,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
 
             JOptionPane.showMessageDialog(
                 None,
-                "Falhou o envio das Issues",
+                "Failed to send Issues",
                 "Error",
                 JOptionPane.ERROR_MESSAGE)
             self.removeCSV(filename)
@@ -668,7 +683,7 @@ class BurpExtender(IBurpExtender, IScannerListener, IContextMenuFactory,
         self.projectId = None
         JOptionPane.showMessageDialog(
             None,
-            "Redefinido envio de Issues sem Projeto.",
+            "Redefinido sem Projeto",
             "Informativo",
             JOptionPane.INFORMATION_MESSAGE)
 
