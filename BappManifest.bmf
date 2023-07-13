@@ -2,11 +2,12 @@ Uuid: b134714a950241819bb37fa049ca21e0
 ExtensionType: 2
 Name: GAT Security Platform Integration
 RepoName: gat-digital-integration
-ScreenVersion: 1.0
-SerialVersion: 4
+ScreenVersion: 1.0.1
+SerialVersion: 5
 MinPlatformVersion: 0
 ProOnly: True
 Author: Julio C. Almeida
 ShortDescription: Integrates with GAT Digital
 EntryPoint: src/main.py
 BuildCommand: 
+SupportedProducts: Pro
